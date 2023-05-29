@@ -16,7 +16,7 @@ class MenuBuilder:
         try:
             curr_dish = [
                 dish
-                for dish in self.menu_data.dishes_list
+                for dish in self.menu_data.dishes
                 if dish.name == dish_name
             ][0]
         except IndexError:
@@ -26,16 +26,15 @@ class MenuBuilder:
 
     # Req 4
     def get_main_menu(self, restriction=None) -> pd.DataFrame:
-        return pd.DataFrame(
-            [
-                {
-                    "dish_name": dish.name,
-                    "ingredients": dish.get_ingredients(),
-                    "price": dish.price,
-                    "restrictions": dish.get_restrictions(),
-                }
-                for dish in self.menu_data.dishes
-                if restriction not in dish.get_restrictions()
-                and self.inventory.check_recipe_availability(dish.recipe)
-            ]
-        )
+        main_menu = [
+            {
+                "dish_name": dish.name,
+                "ingredients": dish.get_ingredients(),
+                "price": dish.price,
+                "restrictions": dish.get_restrictions(),
+            }
+            for dish in self.menu_data.dishes
+            if self.inventory.check_recipe_availability(dish.recipe) and
+            restriction not in dish.get_restrictions()
+        ]
+        return pd.DataFrame(main_menu)

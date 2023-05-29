@@ -5,17 +5,19 @@ import pandas as pd
 
 # Req 3
 class MenuData:
-    def __init__(self, source_path):
+    def __init__(self, source_path: str) -> None:
         self.dishes = set()
-        self.csv_data = pd.read_csv(source_path)
-        dishes_list = {}
-        for data in self.csv_data.itertuples(index=False):
-            name, ingredient, amount, price = data
-            if name not in dishes_list:
-                new_dish = Dish(name, price)
-                dishes_list[name] = new_dish
-                self.dishes.add(new_dish)
-            ingredient = Ingredient(ingredient)
-            dishes_list[name].add_ingredient_dependency(
-                ingredient, amount
+        self.dishes_df = pd.read_csv(source_path)
+        previous_dish = self.dishes_df["dish"].loc[0]
+        dish = Dish(
+            self.dishes_df["dish"].loc[0],
+            float(self.dishes_df["price"].loc[0])
             )
+        for dish_name, price, ingredient, amount in self.dishes_df.itertuples(
+                index=False):
+            if dish_name != previous_dish:
+                self.dishes.add(dish)
+                previous_dish = dish_name
+                dish = Dish(dish_name, float(price))
+            dish.add_ingredient_dependency(Ingredient(ingredient), amount)
+        self.dishes.add(dish)
